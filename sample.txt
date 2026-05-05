@@ -1,0 +1,7 @@
+Dear Students,
+
+This is a sample plaintext file used to demonstrate S-AES in CBC mode.
+The goal is to encrypt this file, and then successfully decrypt it using a Brute Force attack.
+Cryptography is fascinating!
+Best Regards,
+The Team.
