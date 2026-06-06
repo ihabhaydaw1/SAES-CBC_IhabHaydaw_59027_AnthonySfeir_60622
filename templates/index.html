@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S-AES Crypto Studio</title>
+    <meta name="description" content="A premium web interface for Simplified AES CBC mode encryption and brute force attacks.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="background-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <main class="glass-panel">
+        <header>
+            <h1 class="gradient-text">S-AES Crypto Studio</h1>
+            <p class="subtitle">Secure, Simplified, and Dynamic Encryption</p>
+        </header>
+
+        <nav class="tabs">
+            <button class="tab-btn active" data-target="encrypt-decrypt-panel">Encrypt / Decrypt</button>
+            <button class="tab-btn" data-target="brute-force-panel">Brute Force Attack</button>
+        </nav>
+
+        <section id="encrypt-decrypt-panel" class="panel active">
+            <form id="ed-form" class="crypto-form">
+                <div class="file-drop-area" id="ed-drop-area">
+                    <span class="drop-icon">📁</span>
+                    <span class="file-msg">Drag & Drop file here or <span class="highlight">Browse</span></span>
+                    <input type="file" id="ed-file" name="file" class="file-input" required>
+                    <div class="selected-file-name" id="ed-file-name"></div>
+                </div>
+
+                <div class="input-group-row">
+                    <div class="input-group">
+                        <label for="ed-key">Secret Key (Hex or Int)</label>
+                        <input type="text" id="ed-key" name="key" placeholder="e.g., 0x1337" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="ed-iv">Init Vector (IV)</label>
+                        <input type="text" id="ed-iv" name="iv" placeholder="e.g., 0xAAAA" required>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary" onclick="setEDAction('encrypt')">
+                        <span class="icon">🔒</span> Encrypt File
+                    </button>
+                    <button type="submit" class="btn btn-secondary" onclick="setEDAction('decrypt')">
+                        <span class="icon">🔓</span> Decrypt File
+                    </button>
+                </div>
+                <input type="hidden" id="ed-action" name="action" value="encrypt">
+            </form>
+            <div id="ed-result" class="result-box hidden"></div>
+        </section>
+
+        <section id="brute-force-panel" class="panel hidden">
+            <form id="bf-form" class="crypto-form">
+                <div class="file-drop-area" id="bf-drop-area">
+                    <span class="drop-icon">🎯</span>
+                    <span class="file-msg">Drop Encrypted File here or <span class="highlight">Browse</span></span>
+                    <input type="file" id="bf-file" name="file" class="file-input" required>
+                    <div class="selected-file-name" id="bf-file-name"></div>
+                </div>
+
+                <div class="input-group-row">
+                    <div class="input-group">
+                        <label for="bf-iv">Known IV (Hex or Int)</label>
+                        <input type="text" id="bf-iv" name="iv" placeholder="e.g., 0xAAAA" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="bf-header">Known Header</label>
+                        <input type="text" id="bf-header" name="known_header" placeholder="e.g., BM or Dear Students," required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-danger w-100">
+                    <span class="icon">⚡</span> Run Brute Force Attack
+                </button>
+            </form>
+            
+            <div id="bf-loading" class="loading-state hidden">
+                <div class="spinner"></div>
+                <p>Running attack on 2^16 key space...</p>
+            </div>
+            
+            <div id="bf-result" class="result-box hidden"></div>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

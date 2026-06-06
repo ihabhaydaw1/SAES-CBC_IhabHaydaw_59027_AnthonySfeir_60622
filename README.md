@@ -1,61 +1,108 @@
-# S-AES CBC & Brute Force Project
+# S-AES CBC — Encryption, Cryptanalysis & Brute Force
 
-This repository contains a full from-scratch implementation of the Simplified AES (S-AES) block cipher, operating in Cipher Block Chaining (CBC) mode, along with a Cryptanalysis (Brute Force) demonstration.
+**Course:** IN410 — Cryptography  
+**Authors:** Ihab Haydaw (59027), Anthony Sfeir (60622)  
+**Project:** S-AES with CBC Mode of Operation
 
-This project was developed for the Cryptography assignment to get hands-on experience protecting data and understanding how block ciphers, modes of operation, and brute force attacks work.
+---
 
-## Files Structure
+## Overview
 
-- `saes.py`: The core S-AES engine. Implements the $GF(2^4)$ arithmetic, Key Expansion, SubNibbles, ShiftRows, and MixColumns for 16-bit blocks and 16-bit keys. It includes both encryption and decryption routines.
-- `cbc_mode.py`: Implements the Cipher Block Chaining (CBC) mode of operation on top of the S-AES core. Includes PKCS#7-style padding to handle arbitrary file lengths, and provides functions to encrypt/decrypt both raw bytes and files.
-- `brute_force.py`: Implements a brute-force attack to retrieve the 16-bit key from a ciphertext given a known Initialization Vector (IV) and a known plaintext header (e.g., intercepting a known file format or a known start of a message).
-- `main.py`: The main demonstration script that creates a dummy text file, encrypts it, and then simulates an attacker intercepting the file and brute-forcing the key to decrypt it.
+A complete from-scratch implementation of the **Simplified AES (S-AES)** block cipher operating in **Cipher Block Chaining (CBC)** mode, along with multiple **cryptanalysis** and **brute force** attack demonstrations.
+
+> **Note:** No predefined AES/DES Python libraries are used. The entire cipher is implemented from first principles.
+
+---
+
+## Project Structure
+
+| File | Description |
+|------|-------------|
+| `saes.py` | Core S-AES engine — GF(2⁴) arithmetic, Key Expansion, SubNibbles, ShiftRows, MixColumns for 16-bit blocks/keys |
+| `cbc_mode.py` | CBC mode of operation with PKCS#7 padding, file encrypt/decrypt |
+| `brute_force.py` | Exhaustive brute force key recovery (2¹⁶ key space) |
+| `cryptanalysis.py` | Advanced attacks: Known-Plaintext, Differential, Linear Cryptanalysis, CBC Bit-Flipping |
+| `step4_attack.py` | Step 4: Simulates attacking another group's ciphertext |
+| `main.py` | Full demo — encrypts text + image, runs brute force |
+| `test.py` | Step-by-step S-AES verification with test vectors |
+| `report.md` | Detailed report covering all 4 project steps |
+
+---
 
 ## Requirements
 
-The project uses only the standard Python libraries (no external cryptographic libraries like `PyCryptodome` are used, as per the assignment restrictions).
+- **Python 3.6+**
+- No external dependencies (only standard library modules: `os`, `time`, `struct`, `random`)
 
-You need Python 3.6 or later installed.
+---
 
-## Usage
+## Quick Start
 
-### Running the Full Demonstration
-
-To see the complete workflow (Creation -> Encryption -> Interception -> Brute Force -> Decryption), simply run:
+### 1. Full Demonstration (Encryption + Brute Force)
 
 ```bash
 python main.py
 ```
 
-This will output the progress in the console and create the following files:
-- `sample.txt`: The original plaintext file.
-- `sample.enc`: The S-AES CBC encrypted ciphertext.
-- `sample_decrypted.txt`: The decrypted file recovered by the brute force attack.
+Encrypts a text file and a BMP image using S-AES-CBC, then runs brute force to recover both keys.
 
-### Running Individual Tests
+### 2. Cryptanalysis Suite
 
-You can run the modules individually to verify their correctness:
+```bash
+python cryptanalysis.py
+```
 
-- **Test the S-AES core operations** (verifies against the standard `0x6F6B` / `0xA73B` test vector):
-  ```bash
-  python saes.py
-  ```
+Runs all cryptanalysis demonstrations:
+- Known-Plaintext Attack (KPA)
+- Differential Cryptanalysis (builds DDT, finds best differentials)
+- Linear Cryptanalysis (builds LAT, finds best approximations)
+- CBC Bit-Flipping Attack
 
-- **Test the CBC mode padding and chaining**:
-  ```bash
-  python cbc_mode.py
-  ```
+### 3. Step 4 — Attack Another Group's Ciphertext
 
-- **Test the Brute Force logic independently**:
-  ```bash
-  python brute_force.py
-  ```
+```bash
+python step4_attack.py
+```
 
-## Report Outline
+Simulates intercepting another group's S-AES-CBC ciphertext and recovering the key.
 
-When writing your detailed report, you can follow these 4 steps based on this code:
+### 4. Individual Module Tests
 
-1. **Research S-AES**: Explain the 2-round structure of S-AES, the $GF(2^4)$ polynomial $x^4 + x + 1$, and how the block size (16 bits) makes it susceptible to Brute Force ($2^{16} = 65,536$ keys).
-2. **S-AES CBC Implementation**: Detail how `saes.py` implements the math without using built-in libraries. Explain how `cbc_mode.py` uses an IV and XORs each plaintext block with the previous ciphertext block. Mention the PKCS#7-style padding used for 2-byte blocks.
-3. **Cryptanalysis**: Explain the Brute Force methodology in `brute_force.py`. Emphasize that because the key space is only $2^{16}$, a modern computer can check all possible keys in less than a second. We use a known plaintext attack (knowing the file starts with `"Dear Students,"`) to verify when the correct key is found.
-4. **Presentation**: Use the output of `main.py` as a practical demonstration of how data is protected and subsequently compromised when using a small key size.
+```bash
+python saes.py           # Test S-AES block operations
+python cbc_mode.py       # Test CBC mode
+python brute_force.py    # Test brute force
+python test.py           # Step-by-step encryption trace
+```
+
+---
+
+## How It Works
+
+### S-AES (Simplified AES)
+
+- **Block size:** 16 bits (2 bytes)
+- **Key size:** 16 bits
+- **Rounds:** 2
+- **Operations:** SubNibbles (4-bit S-Box), ShiftRows, MixColumns (GF(2⁴)), AddRoundKey
+- **Key schedule:** Generates 3 round keys from the 16-bit master key using RCON constants
+
+### CBC Mode
+
+- XORs each plaintext block with the previous ciphertext block (or IV for the first block)
+- Uses PKCS#7-style padding for 2-byte blocks
+- Provides semantic security (identical plaintext blocks produce different ciphertext)
+
+### Brute Force Attack
+
+- Key space: 2¹⁶ = 65,536 keys → trivially searchable
+- Uses known-plaintext header to verify candidate keys
+- Typically completes in < 1 second
+
+---
+
+## References
+
+- Stallings, W. *Cryptography and Network Security* — S-AES specification
+- Heys, H. *A Tutorial on Linear and Differential Cryptanalysis*
+- NIST SP 800-38A — Recommendation for Block Cipher Modes of Operation
