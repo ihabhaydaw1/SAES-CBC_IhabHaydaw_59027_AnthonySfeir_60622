@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S-AES Crypto Studio</title>
-    <meta name="description" content="A premium web interface for Simplified AES CBC mode encryption and brute force attacks.">
+    <title>S-AES Crypto Studio — CBC Mode</title>
+    <meta name="description" content="Premium web interface for Simplified AES in CBC mode: encryption, decryption, brute force attacks, and advanced cryptanalysis.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+
     <div class="background-orbs">
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
@@ -19,17 +20,46 @@
 
     <main class="glass-panel">
         <header>
+            <div class="logo-icon">
+                <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+                    <rect x="2" y="2" width="32" height="32" rx="8" stroke="url(#g1)" stroke-width="2.5"/>
+                    <path d="M12 12h12v12H12z" fill="url(#g1)" opacity="0.25" rx="3"/>
+                    <path d="M18 10v16M10 18h16" stroke="url(#g1)" stroke-width="2" stroke-linecap="round"/>
+                    <defs><linearGradient id="g1" x1="0" y1="0" x2="36" y2="36"><stop stop-color="#a855f7"/><stop offset="1" stop-color="#3b82f6"/></linearGradient></defs>
+                </svg>
+            </div>
             <h1 class="gradient-text">S-AES Crypto Studio</h1>
-            <p class="subtitle">Secure, Simplified, and Dynamic Encryption</p>
+            <p class="subtitle">Simplified AES · CBC Mode · 16-bit Block Cipher</p>
         </header>
 
-        <nav class="tabs">
-            <button class="tab-btn active" data-target="encrypt-decrypt-panel">Encrypt / Decrypt</button>
-            <button class="tab-btn" data-target="brute-force-panel">Brute Force Attack</button>
+        <!-- ── Tab Navigation ── -->
+        <nav class="tabs" id="main-tabs">
+            <button class="tab-btn active" data-target="panel-encdec" id="tab-encdec">
+                <span class="tab-icon">🔐</span> Encrypt / Decrypt
+            </button>
+            <button class="tab-btn" data-target="panel-bruteforce" id="tab-bruteforce">
+                <span class="tab-icon">⚡</span> Brute Force
+            </button>
+            <button class="tab-btn" data-target="panel-cryptanalysis" id="tab-cryptanalysis">
+                <span class="tab-icon">🔬</span> Cryptanalysis
+            </button>
+            <button class="tab-btn" data-target="panel-step4" id="tab-step4">
+                <span class="tab-icon">🎯</span> Step 4 Attack
+            </button>
         </nav>
 
-        <section id="encrypt-decrypt-panel" class="panel active">
-            <form id="ed-form" class="crypto-form">
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- TAB 1: Encrypt / Decrypt                                      -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <section id="panel-encdec" class="panel active">
+            <!-- Mode Toggle -->
+            <div class="mode-toggle" id="ed-mode-toggle">
+                <button class="mode-btn active" data-mode="file">📁 File Mode</button>
+                <button class="mode-btn" data-mode="text">📝 Text Mode</button>
+            </div>
+
+            <!-- File Mode -->
+            <form id="ed-form-file" class="crypto-form">
                 <div class="file-drop-area" id="ed-drop-area">
                     <span class="drop-icon">📁</span>
                     <span class="file-msg">Drag & Drop file here or <span class="highlight">Browse</span></span>
@@ -39,29 +69,64 @@
 
                 <div class="input-group-row">
                     <div class="input-group">
-                        <label for="ed-key">Secret Key (Hex or Int)</label>
-                        <input type="text" id="ed-key" name="key" placeholder="e.g., 0x1337" required>
+                        <label for="ed-key-file">Secret Key (16-bit Hex)</label>
+                        <input type="text" id="ed-key-file" name="key" placeholder="e.g., 0x1337" required>
                     </div>
                     <div class="input-group">
-                        <label for="ed-iv">Init Vector (IV)</label>
-                        <input type="text" id="ed-iv" name="iv" placeholder="e.g., 0xAAAA" required>
+                        <label for="ed-iv-file">Initialization Vector (IV)</label>
+                        <input type="text" id="ed-iv-file" name="iv" placeholder="e.g., 0xAAAA" required>
                     </div>
                 </div>
 
                 <div class="action-buttons">
-                    <button type="submit" class="btn btn-primary" onclick="setEDAction('encrypt')">
-                        <span class="icon">🔒</span> Encrypt File
+                    <button type="button" class="btn btn-primary" id="btn-encrypt-file">
+                        <span class="icon">🔒</span> Encrypt
                     </button>
-                    <button type="submit" class="btn btn-secondary" onclick="setEDAction('decrypt')">
-                        <span class="icon">🔓</span> Decrypt File
+                    <button type="button" class="btn btn-secondary" id="btn-decrypt-file">
+                        <span class="icon">🔓</span> Decrypt
                     </button>
                 </div>
-                <input type="hidden" id="ed-action" name="action" value="encrypt">
             </form>
+
+            <!-- Text Mode -->
+            <form id="ed-form-text" class="crypto-form hidden">
+                <div class="input-group">
+                    <label for="ed-text-input">Plaintext / Ciphertext (hex for decrypt)</label>
+                    <textarea id="ed-text-input" rows="4" placeholder="Enter text to encrypt, or hex string to decrypt…" required></textarea>
+                </div>
+
+                <div class="input-group-row">
+                    <div class="input-group">
+                        <label for="ed-key-text">Secret Key (16-bit Hex)</label>
+                        <input type="text" id="ed-key-text" placeholder="e.g., 0x1337" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="ed-iv-text">Initialization Vector (IV)</label>
+                        <input type="text" id="ed-iv-text" placeholder="e.g., 0xAAAA" required>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-primary" id="btn-encrypt-text">
+                        <span class="icon">🔒</span> Encrypt
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="btn-decrypt-text">
+                        <span class="icon">🔓</span> Decrypt
+                    </button>
+                </div>
+            </form>
+
             <div id="ed-result" class="result-box hidden"></div>
         </section>
 
-        <section id="brute-force-panel" class="panel hidden">
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- TAB 2: Brute Force Attack                                     -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <section id="panel-bruteforce" class="panel">
+            <div class="panel-description">
+                <p>Upload an <strong>encrypted file</strong> and provide the IV and a known plaintext header. The attack tests all 2<sup>16</sup> = 65,536 possible keys.</p>
+            </div>
+
             <form id="bf-form" class="crypto-form">
                 <div class="file-drop-area" id="bf-drop-area">
                     <span class="drop-icon">🎯</span>
@@ -72,27 +137,104 @@
 
                 <div class="input-group-row">
                     <div class="input-group">
-                        <label for="bf-iv">Known IV (Hex or Int)</label>
+                        <label for="bf-iv">Known IV (Hex)</label>
                         <input type="text" id="bf-iv" name="iv" placeholder="e.g., 0xAAAA" required>
                     </div>
                     <div class="input-group">
-                        <label for="bf-header">Known Header</label>
+                        <label for="bf-header">Known Header / Plaintext Prefix</label>
                         <input type="text" id="bf-header" name="known_header" placeholder="e.g., BM or Dear Students," required>
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-danger w-100">
-                    <span class="icon">⚡</span> Run Brute Force Attack
+                <button type="submit" class="btn btn-danger w-100" id="btn-bruteforce">
+                    <span class="icon">⚡</span> Launch Brute Force Attack
                 </button>
             </form>
-            
+
             <div id="bf-loading" class="loading-state hidden">
                 <div class="spinner"></div>
-                <p>Running attack on 2^16 key space...</p>
+                <p>Searching 2<sup>16</sup> key space…</p>
             </div>
-            
+
             <div id="bf-result" class="result-box hidden"></div>
         </section>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- TAB 3: Cryptanalysis                                          -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <section id="panel-cryptanalysis" class="panel">
+            <div class="panel-description">
+                <p>Run advanced cryptanalysis attacks against S-AES. Provide a <strong>target key</strong> to demonstrate how each technique recovers key information.</p>
+            </div>
+
+            <div class="input-group-row" style="margin-bottom:20px;">
+                <div class="input-group">
+                    <label for="ca-key">Target Key (16-bit Hex)</label>
+                    <input type="text" id="ca-key" placeholder="e.g., 0x3A94" value="0x3A94">
+                </div>
+                <div class="input-group">
+                    <label for="ca-iv">IV (for CBC attacks)</label>
+                    <input type="text" id="ca-iv" placeholder="e.g., 0xBEEF" value="0xBEEF">
+                </div>
+            </div>
+
+            <div class="attack-grid">
+                <button class="attack-card" id="btn-kpa" data-attack="kpa">
+                    <div class="attack-card-icon">🔑</div>
+                    <div class="attack-card-title">Known-Plaintext (KPA)</div>
+                    <div class="attack-card-desc">Exhaustive search with a known PT–CT pair</div>
+                </button>
+                <button class="attack-card" id="btn-differential" data-attack="differential">
+                    <div class="attack-card-icon">📊</div>
+                    <div class="attack-card-title">Differential</div>
+                    <div class="attack-card-desc">DDT-based chosen-plaintext attack</div>
+                </button>
+                <button class="attack-card" id="btn-linear" data-attack="linear">
+                    <div class="attack-card-icon">📈</div>
+                    <div class="attack-card-title">Linear</div>
+                    <div class="attack-card-desc">LAT-based statistical key recovery</div>
+                </button>
+                <button class="attack-card" id="btn-bitflip" data-attack="bitflip">
+                    <div class="attack-card-icon">🔄</div>
+                    <div class="attack-card-title">CBC Bit-Flipping</div>
+                    <div class="attack-card-desc">Modify plaintext without the key</div>
+                </button>
+            </div>
+
+            <div id="ca-loading" class="loading-state hidden">
+                <div class="spinner"></div>
+                <p id="ca-loading-msg">Running attack…</p>
+            </div>
+
+            <div id="ca-result" class="result-box hidden"></div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- TAB 4: Step 4 — Attack Another Group                         -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <section id="panel-step4" class="panel">
+            <div class="panel-description">
+                <p>Simulate intercepting another group's S-AES-CBC ciphertext. The system generates a random 16-bit key, encrypts a message, then attempts to <strong>recover the key</strong> using known-plaintext brute force.</p>
+            </div>
+
+            <button class="btn btn-danger w-100" id="btn-step4">
+                <span class="icon">🚀</span> Simulate Interception & Attack
+            </button>
+
+            <div id="s4-loading" class="loading-state hidden">
+                <div class="spinner"></div>
+                <p>Intercepting ciphertext & brute-forcing key…</p>
+            </div>
+
+            <div id="s4-result" class="result-box hidden"></div>
+        </section>
+
+        <!-- ── Footer ── -->
+        <footer class="app-footer">
+            <span>IN410 — Cryptography</span>
+            <span class="dot">·</span>
+            <span>Ihab Haydaw & Anthony Sfeir</span>
+        </footer>
     </main>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
