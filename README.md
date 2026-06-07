@@ -56,7 +56,6 @@ Open **http://localhost:5000** in your browser. The web UI provides 4 tabs:
 1. **Encrypt / Decrypt** — Upload files or enter text to encrypt/decrypt with S-AES-CBC
 2. **Brute Force Attack** — Upload an encrypted file and attempt to recover the 16-bit key
 3. **Cryptanalysis** — Run advanced attacks (KPA, Differential, Linear, Bit-Flipping)
-4. **Step 4 Attack** — Simulate attacking another group's ciphertext
 
 ### CLI — Full Demonstration
 

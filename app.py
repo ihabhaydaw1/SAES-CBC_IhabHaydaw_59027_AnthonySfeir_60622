@@ -5,7 +5,6 @@ Provides REST API endpoints for:
   1. Encrypt / Decrypt files and text
   2. Brute Force Attack (key recovery)
   3. Cryptanalysis demonstrations (KPA, Differential, Linear, Bit-Flipping)
-  4. Step 4 — Attack another group's ciphertext
 
 Authors: Ihab Haydaw (59027), Anthony Sfeir (60622)
 """
@@ -404,79 +403,6 @@ def _run_bitflip(key, iv):
     })
 
 
-# ── Step 4 Attack ─────────────────────────────────────────────────────────
-
-@app.route("/api/step4_attack", methods=["POST"])
-def run_step4_attack():
-    """Simulate attacking another group's ciphertext."""
-    start = time.time()
-
-    # Simulate the other group's encryption
-    secret_key = random.randint(0, 0xFFFF)
-    iv = 0x1234
-
-    message = (
-        b"FROM: Group Alpha\n"
-        b"TO: Professor\n"
-        b"SUBJECT: Crypto Assignment\n\n"
-        b"Dear Professor,\n\n"
-        b"We have completed our S-AES implementation.\n"
-        b"Our test results show 100% accuracy on all test vectors.\n"
-        b"The brute force attack takes approximately 0.5 seconds.\n\n"
-        b"Best Regards,\n"
-        b"Group Alpha"
-    )
-
-    ciphertext = encrypt_cbc(message, secret_key, iv)
-    known_header = b"FROM: Group"
-
-    # Optimized CBC brute force — only needs 1 block encryption per key
-    p0 = (known_header[0] << 8) | known_header[1]
-    c0 = (ciphertext[0] << 8) | ciphertext[1]
-    expected_input = p0 ^ iv
-
-    candidates = []
-    for k in range(0x10000):
-        if encrypt_block(expected_input, k) == c0:
-            candidates.append(k)
-
-    # Verify with second block
-    found_key = None
-    if len(known_header) >= 4:
-        p1 = (known_header[2] << 8) | known_header[3]
-        c1 = (ciphertext[2] << 8) | ciphertext[3]
-        for k in candidates:
-            if encrypt_block(p1 ^ c0, k) == c1:
-                found_key = k
-                break
-    elif candidates:
-        found_key = candidates[0]
-
-    elapsed = time.time() - start
-
-    result = {
-        "actual_key": f"0x{secret_key:04X}",
-        "iv": f"0x{iv:04X}",
-        "ct_preview": ciphertext[:40].hex(),
-        "ct_length": len(ciphertext),
-        "known_header": known_header.decode(),
-        "time": f"{elapsed:.4f}s",
-        "keys_tested": "65,536",
-    }
-
-    if found_key is not None:
-        decrypted = decrypt_cbc(ciphertext, found_key, iv)
-        result["success"] = True
-        result["found_key"] = f"0x{found_key:04X}"
-        result["match"] = found_key == secret_key
-        result["decrypted_message"] = decrypted.decode("utf-8", errors="replace")
-    else:
-        result["success"] = False
-        result["message"] = "Key not found."
-
-    return jsonify(result)
-
-
 # ---------------------------------------------------------------------------
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(debug=True, port=5000)

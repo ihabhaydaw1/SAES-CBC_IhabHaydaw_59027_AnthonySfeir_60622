@@ -331,53 +331,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ────────────────────────────────────────────────────────────
-    // TAB 4 — Step 4 Attack
-    // ────────────────────────────────────────────────────────────
-
-    const s4Btn     = document.getElementById("btn-step4");
-    const s4Loading = document.getElementById("s4-loading");
-    const s4Result  = document.getElementById("s4-result");
-
-    s4Btn.addEventListener("click", async () => {
-        s4Result.classList.add("hidden");
-        s4Loading.classList.remove("hidden");
-        s4Btn.disabled = true;
-
-        try {
-            const res  = await fetch("/api/step4_attack", { method: "POST" });
-            const data = await res.json();
-            s4Loading.classList.add("hidden");
-
-            if (!res.ok || data.error) {
-                showError(s4Result, data.error || "Server error");
-            } else if (data.success) {
-                showResult(s4Result, `
-                    <div class="result-title">🎯 Attack Successful!</div>
-                    <div class="result-row"><span class="result-label">Actual Key (hidden)</span><span class="result-value">${data.actual_key}</span></div>
-                    <div class="result-row"><span class="result-label">Recovered Key</span><span class="result-value key-found">${data.found_key}</span></div>
-                    <div class="result-row"><span class="result-label">Match</span><span class="result-value">${data.match ? '✅ Correct' : '❌ Mismatch'}</span></div>
-                    <div class="result-row"><span class="result-label">IV</span><span class="result-value">${data.iv}</span></div>
-                    <div class="result-row"><span class="result-label">Ciphertext Size</span><span class="result-value">${data.ct_length} bytes</span></div>
-                    <div class="result-row"><span class="result-label">Known Header</span><span class="result-value">"${escapeHtml(data.known_header)}"</span></div>
-                    <div class="result-row"><span class="result-label">Keys Tested</span><span class="result-value">${data.keys_tested}</span></div>
-                    <div class="result-row"><span class="result-label">Time</span><span class="result-value">${data.time}</span></div>
-                    <p style="margin-top:14px;color:var(--text-muted);font-size:0.84rem;">Decrypted Message:</p>
-                    <div class="result-message-box">${escapeHtml(data.decrypted_message)}</div>
-                `, "success");
-            } else {
-                showResult(s4Result, `
-                    <div class="result-title">❌ Attack Failed</div>
-                    <p>${data.message || "Could not recover the key."}</p>
-                `, "error");
-            }
-        } catch (err) {
-            s4Loading.classList.add("hidden");
-            showError(s4Result, err.message);
-        }
-        s4Btn.disabled = false;
-    });
-
-    // ────────────────────────────────────────────────────────────
     // Utilities
     // ────────────────────────────────────────────────────────────
 

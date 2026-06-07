@@ -43,9 +43,6 @@
             <button class="tab-btn" data-target="panel-cryptanalysis" id="tab-cryptanalysis">
                 <span class="tab-icon">🔬</span> Cryptanalysis
             </button>
-            <button class="tab-btn" data-target="panel-step4" id="tab-step4">
-                <span class="tab-icon">🎯</span> Step 4 Attack
-            </button>
         </nav>
 
         <!-- ═══════════════════════════════════════════════════════════════ -->
@@ -210,24 +207,6 @@
         </section>
 
         <!-- ═══════════════════════════════════════════════════════════════ -->
-        <!-- TAB 4: Step 4 — Attack Another Group                         -->
-        <!-- ═══════════════════════════════════════════════════════════════ -->
-        <section id="panel-step4" class="panel">
-            <div class="panel-description">
-                <p>Simulate intercepting another group's S-AES-CBC ciphertext. The system generates a random 16-bit key, encrypts a message, then attempts to <strong>recover the key</strong> using known-plaintext brute force.</p>
-            </div>
-
-            <button class="btn btn-danger w-100" id="btn-step4">
-                <span class="icon">🚀</span> Simulate Interception & Attack
-            </button>
-
-            <div id="s4-loading" class="loading-state hidden">
-                <div class="spinner"></div>
-                <p>Intercepting ciphertext & brute-forcing key…</p>
-            </div>
-
-            <div id="s4-result" class="result-box hidden"></div>
-        </section>
 
         <!-- ── Footer ── -->
         <footer class="app-footer">

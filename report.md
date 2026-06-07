@@ -12,7 +12,6 @@
 1. [Step 1: Research on S-AES and Cryptanalysis](#step-1-research-on-s-aes-and-cryptanalysis)
 2. [Step 2: S-AES CBC Implementation](#step-2-s-aes-cbc-implementation)
 3. [Step 3: Cryptanalysis and Brute Force](#step-3-cryptanalysis-and-brute-force)
-4. [Step 4: Attacking Another Group's Ciphertext](#step-4-attacking-another-groups-ciphertext)
 5. [Conclusion](#conclusion)
 6. [References](#references)
 
